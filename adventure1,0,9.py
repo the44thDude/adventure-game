@@ -122,9 +122,9 @@ def SaveCharacter(characterName):
 #function to retreave information form the txt file with stats in it for monsters or characters
 def getstat(file,Name,stat):
     with open(file,'r') as rf:
+        rf.seek(0)
         repeat=True
         while repeat==True:
-            rf.seek(0)
             line=rf.readline()
             if Name in line and stat in line:
                 value=int(line[-2])
