@@ -1,2 +1,15 @@
 
+dude44, health,  20
+dude44, strength,  1
+dude44, stealth,  1
+dude44, sight,  4
+dude44, armor,  8
+
+
+sexyboi, health,  20
+sexyboi, strength,  1
+sexyboi, stealth,  1
+sexyboi, sight,  1
+sexyboi, armor,  14
+sexyboi, score,    
 
