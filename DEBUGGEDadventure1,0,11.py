@@ -127,11 +127,8 @@ def getstat(file,Name,stat):
         while repeat==True:
             line=rf.readline()
             if Name in line and stat in line:
-                value=int(line[-2])
-                if '1' in line[-3] or '2' in line[-3] or '3' in line[-3] or '4' in line[-3] or '5' in line[-3]:
-                    value=value+(int(line[-3])*10)
-                elif '6' in line[-3] or '7' in line[-3] or '8' in line[-3] or '9' in line[-3]:
-                    value=value+(int(line[-3])*10)
+                line.split(',')
+                value=int(line[3])
                 repeat= False
                 return value
             else:
@@ -146,7 +143,11 @@ def changestat(file,Name,stat,newstat):
             line=rf.readline()
             linevalue=linevalue+len(line)
             if Name in line and stat in line:
-                rf.seek(linevalue-3)
+                stat=line.split(',')
+                if len(stat[2])<3:
+                    rf.seek(linevalue-2)
+                else:
+                    rf.seek(linevalue-3)
                 rf.write(str(newstat)+'\n')
                 repeat=False
             else:
@@ -575,6 +576,7 @@ makenew=os.path.isfile('highscores.txt')
 if makenew==False:
     with open('highscores.txt', 'w') as f:
         pass
+
 runprog=True
 wins=0
 losses=0
