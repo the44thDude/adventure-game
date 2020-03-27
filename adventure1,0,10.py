@@ -51,7 +51,7 @@ def CharacterCreate():
         print('Sight is your adventurer`s ability to spot other creatures or search an area.')
         print('Armor is your adventurer`s defense it is what an attacker needs to roll above to hit your adventurer.')
         space()
-        print('Health is also a stat but it will be determined seperately.')
+        print('Health is also a stat but it will be determined by difficulty level')
         statpoints=3
         while statpoints!=0:
             print('you have '+str(statpoints)+' points to invest in your charecter`s stats.')
@@ -77,9 +77,9 @@ def CharacterCreate():
             print('type /easy for easy, /medium for medium, /hard for hard, /extreme for extreme, or /1hit to die after one hit')
             com=input()
             if com=='/easy':
-                health=20
+                health=30
             elif com=='/medium':
-                health=15
+                health=20
             elif com=='/hard':
                 health=10
             elif com=='/extreme':
@@ -87,7 +87,7 @@ def CharacterCreate():
             elif com=='/1hit':
                 health=1
             elif com=='/god':
-                health=100
+                health=99
             else:
                 print('invalid command please retry')
         while valid!=True:
@@ -110,15 +110,15 @@ def SaveCharacter(characterName):
     global MaxHealth
     stats=CharacterCreate()
     MaxHealth=stats[0]
-    with open('characters.txt','a') as wf:
-            wf.write('\n')
-            wf.write(characterName+', health,  '+str(stats[0])+'\n')
-            wf.write(characterName+', strength,  '+str(stats[1])+'\n')
-            wf.write(characterName+', stealth,  '+str(stats[2])+'\n')
-            wf.write(characterName+', sight,  '+str(stats[3])+'\n')
-            wf.write(characterName+', armor,  '+str(stats[4])+'\n')
-            wf.write(characterName+', weapon,    \n')
-            wf.write('\n')
+    with open('characters.txt','a') as wfc:
+            wfc.write('\n')
+            wfc.write(characterName+', health,  '+str(stats[0])+'\n')
+            wfc.write(characterName+', strength,  '+str(stats[1])+'\n')
+            wfc.write(characterName+', stealth,  '+str(stats[2])+'\n')
+            wfc.write(characterName+', sight,  '+str(stats[3])+'\n')
+            wfc.write(characterName+', armor,  '+str(stats[4])+'\n')
+            wfc.write(characterName+', weapon,    \n')
+            wfc.write('\n')
 #function to retreave information form the txt file with stats in it for monsters or characters
 def getstat(file,Name,stat):
     with open(file,'r') as rf:
@@ -141,17 +141,18 @@ def changestat(file,Name,stat,newstat):
     with open(file,'r+') as rf:
         repeat=True
         linevalue=0
+        rf.seek(0)
         while repeat==True:
             line=rf.readline()
             linevalue=linevalue+len(line)
             if Name in line and stat in line:
                 rf.seek(linevalue-3)
-                rf.write(' '+str(newstat)+'\n')
+                rf.write(str(newstat)+'\n')
                 repeat=False
             else:
                 repeat=True
 def terrainset():
-    terrains=['desert', 'grasslands', 'forest', 'mountains']
+    terrains=['desert', 'grasslands', 'forest', 'mountains','marshlands', 'hills', 'windy planes']
     newterrain=random.choice(terrains)
     return newterrain
 
@@ -160,24 +161,28 @@ def encounter(terrain,sneak):
     run=0
     if terrain=='desert':
         print('the worm fights you')
-        monsterarmor=getstat('monsters.txt','worm','armor')
-        monsterattack=getstat('monsters.txt','worm','attack')
-        monsterlife=getstat('monsters.txt','worm','health')
+        monster='worm'
     elif terrain=='mountains':
         print('the yeti fights you')
-        monsterarmor=getstat('monsters.txt','yeti','armor')
-        monsterattack=getstat('monsters.txt','yeti','attack')
-        monsterlife=getstat('monsters.txt','yeti','health')
+        monster='yeti'
     elif terrain=='grasslands':
         print('the tigerbear fights you')
-        monsterarmor=getstat('monsters.txt','tigerbear','armor')
-        monsterattack=getstat('monsters.txt','tigerbear','attack')
-        monsterlife=getstat('monsters.txt','tigerbear','health')
+        monster='tigerbear'
     elif terrain=='forest':
         print('the troll fights you')
-        monsterarmor=getstat('monsters.txt','troll','armor')
-        monsterattack=getstat('monsters.txt','troll','attack')
-        monsterlife=getstat('monsters.txt','troll','health')
+        monster='troll'
+    elif terrain=='marshlands':
+        print('the crocodile attacks you')
+        monster='crocodile'
+    elif terrain=='hills':
+        print('a goblin jumps out from behind a bush!')
+        monster='goblin'
+    elif terain=='windy planes':
+        print('an eagle swwops down from above!')
+        monster='eagle'
+    monsterlife=getstat('monsters.txt',monster,'health')
+    monsterarmor=getstat('monsters.txt',monster,'armor')
+    monsterattack=getstat('monsters.txt',monster,'attack')
     PlayerHealth=getstat('characters.txt', playername,'health')
     PlayerArmor=getstat('characters.txt', playername,'armor')
     if sneak==True:
@@ -204,6 +209,8 @@ def encounter(terrain,sneak):
             print('invalid command please try again')
             valid=False
         if valid==True:
+            space()
+            print('it is the monster`s turn')
             hit=skillcheck(monsterattack,PlayerArmor)
             if hit==True:
                 print('the monster hit you')
@@ -321,9 +328,23 @@ def journey():
                 print('he dealt ' +str(damage)+' points of damage!')
                 PlayerHealth=PlayerHealth-damage
                 print('you are now at '+str(PlayerHealth)+' health')
+                if PlayerHealth<=0:
+                    end=True
                 changestat('characters.txt',playername,'health',PlayerHealth)
             elif Pass==True:
                 print('you see a tigerbear attempting to sneak up on you.')
+        if terrain=='marshlands':
+            print('the marsh gives way below you and you attempt to swim towards the land!')
+            Pass=skillcheck(strength,9+day)
+            if Pass==False:
+                print('you are sucked into the swamp and drown')
+                end=True
+            elif Pass==True:
+                print('you manage to swim to shore and pull yourself out you are alive, but wet and gross.')
+        if terrain=='windy planes' or 'hills':
+            print('you relax, there is no skill check and the road here is very well worn.')
+        if end==True:
+            break
         if fight==True:
             valid=True
             if terrain=='desert':
@@ -349,7 +370,7 @@ def journey():
                     armor=armor+1
                     changestat('characters.txt',playername,'armor',armor)
                 elif monloot=='a lifestone':
-                    PlayerHealth=PlayerHealth*2
+                    PlayerHealth=PlayerHealth+5
                     changestat('characters.txt',playername,'health',PlayerHealth)
                 exp=exp+1
             elif WinFight[0]==False and WinFight[1]==True:
@@ -361,17 +382,24 @@ def journey():
         day=day+1
         if exp==3:
             end=False
+        elif end==True:
+            break
     if end==True:
         return False
     else:
         return True
 def Dragonfight():
-    monsterarmor=getstat('monsters.txt','dragon','armor')
-    monsterattack=getstat('monsters.txt','dragon','attack')
-    monsterlife=getstat('monsters.txt','dragon','health')
+    terrain=terrainset()
+    if terrain=='hills' or 'windy planes' or 'mountains' or 'desert':
+        monster='dragon'
+    elif terrain== 'grasslands' or 'marshlands' or 'forest':
+        monster='hag'
+    monsterarmor=getstat('monsters.txt',monster,'armor')
+    monsterattack=getstat('monsters.txt',monster,'attack')
+    monsterlife=getstat('monsters.txt',monster,'health')
     stealth=getstat('characters.txt',playername,'stealth')
     while valid==False:
-        print('you awake a new day and soon find you are nearing the end of your journey. by noon you find yourself at the dragon`s lair')
+        print('you awake a new day and soon find you are nearing the end of your journey. by noon you find yourself at the lair of a '+monster)
         print('do you attempt to sneak in or do you charge in and use your powerful thighs to make an extra powerful smack on the dragon?')
         print('type /sneak to sneak in or /run to run in')
         com=input()
@@ -380,14 +408,14 @@ def Dragonfight():
             Pass=skillcheck(stealth,12)
             if Pass==True:
                 sneak=True
-                print('you snuck up on the dragon and will hit him very hard the first time')
+                print('you snuck up on the '+monster+' and will hit him very hard the first time')
             else:
                 sneak=False
-                print('the dragon sees you and you must now prepare for battle!')
+                print('the '+monster+' sees you and you must now prepare for battle!')
         elif com=='/run':
             valid=False
             sneak=False
-            print('you run in and your blood boils with battle energy as you attack the dragon!')
+            print('you run in and your blood boils with battle energy as you attack the '+monster+'!')
         else:
             print('invalid command please try again')
             valid=False
@@ -413,7 +441,7 @@ def Dragonfight():
             PlayerArmor=PlayerArmor+5
         elif 'seduce' in com:
             valid=False
-            print('the dragon finds you VERY ATRACTIVE but still wants to kill you and fuck your corpse so you gotta fight')
+            print('the '+monster+' finds you VERY ATRACTIVE but still wants to kill you and fuck your corpse so you gotta fight')
         else:
             print('invalid command please try again')
             valid=False
@@ -435,8 +463,8 @@ def endscreen(win):
     global losses
     global playername
     valid=False
-    with open('highscores.txt','a') as wf:
-        wf.write('\n'+playername+', score,    \n')
+    with open('highscores.txt','a') as wfh:
+        wfh.write('\n'+playername+', score,    \n')
     changestat('highscores.txt',playername,'score', wins)
     with open('highscores.txt','r') as rf:
         contents=rf.read()
@@ -471,28 +499,44 @@ def SameCharecterQuerie(wins,losses):
                 changestat('characters.txt',playername,'health',MaxHealth)
                 break
             elif com=='/yes':
-                valid=True
-                print('enter your new character name')
-                playername=input('name:')
+                valid2=False
+                while valid2==False:
+                    playername=input('name:')
+                    with open('characters.txt','r') as f:
+                        content=f.read()
+                    if playername in content:
+                        print('please choose a different name')
+                    else:
+                        valid2=True
                 SaveCharacter(playername)
             else:
                 valid=False
     else:
-        valid=False
-        while valid==False:
+        valid2=False
+        while valid2==False:
             playername=input('name:')
             with open('characters.txt','r') as f:
                 content=f.read()
             if playername in content:
                 print('please choose a different name')
             else:
-                valid=True
+                valid2=True
         SaveCharacter(playername)
 #game instructions
-print('Welcome to Caleb`s great adventure game version 9! this is still in development if you experience issues let me know and tell me what choices you made.')
-print('to play: enter simple commands from the list and try to defeat the dragon!')
+print('Welcome to Caleb`s great adventure game version 10! this is still in development if you experience issues let me know and tell me what choices you made.')
+print('to play: enter simple commands from the list and try to defeat as many bosses as possible.')
+print('currently there are two bosses: dragon and hag.')
+print('*')
+print('inorder to get to the boss you must suvive three days of your journey through randomly generated terrains')
+print('every day consists of a skill check based off the terrain you are in, and an encounter with a monster')
+print('some skillchecks will end in player death if failed and some will bypass the monster fight')
+print('*')
+print('once you reach a boss it will be randomly determined which boss you fight')
+print('after the fight you will either win or lose the game, your wins and losses will be recorded')
+print('you will have to restart the game via /return after the boss fight and your health will be restored')
+print('*')
 print('you may only enter a command that is listed as an option in the question.')
-print('all commands are ONE WORD proceeded by a foreward slash in the format "/command"')
+print('all commands are one word proceeded by a foreward slash in the format "/command"')
 print('enter the name  of your adventurer to play')
 makenew=os.path.isfile('characters.txt')
 if makenew==False:
@@ -502,14 +546,22 @@ makenew=os.path.isfile('highscores.txt')
 if makenew==False:
     with open('highscores.txt', 'w') as f:
         pass
-with open('monsters.txt','w') as f:
-    f.write(' dragon, health, 30\n dragon, armor, 12\n dragon, attack, 5\n yeti, health, 10\n yeti, armor, 8\n yeti, attack, 3\n worm, health, 5\n worm, armor, 10\n worm, attack, 1\n troll, health, 15\n troll, armor, 7\n troll, attack, 3\n tigerbear, health, 5\n tigerbear, armor, 6\n tigerbear, attack, 5\n')
 runprog=True
 wins=0
 losses=0
 while runprog==True:
     win=0
     cont=0
+    with open('monsters.txt','w') as wfm:
+        wfm.write('\n dragon, health, 20\n dragon, armor, 12\n dragon, attack, 5\n')
+        wfm.write('\n yeti, health, 10\n yeti, armor, 8\n yeti, attack, 3\n')
+        wfm.write('\n worm, health, 5\n worm, armor, 10\n worm, attack, 1\n')
+        wfm.write('\n troll, health, 15\n troll, armor, 7\n troll, attack, 3\n')
+        wfm.write('\n tigerbear, health, 5\n tigerbear, armor, 6\n tigerbear, attack, 5\n')
+        wfm.write('\n crocodile, health, 8\n crocodile, armor, 10\n crocodile, attack, 3\n')
+        wfm.write('\n goblin, health, 1\n goblin, armor, 1\n goblin, attack, 1\n')
+        wfm.write('\n eagle, health, 3\n eagle, armor, 10\n eagle, attack, 2\n')
+        wfm.write('\n hag, health, 20\n hag, armor, 10\n hag, attack, 5\n')
     SameCharecterQuerie(wins,losses)
     cont=journey()
     if cont==False:
