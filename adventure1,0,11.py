@@ -390,9 +390,11 @@ def journey():
         return True
 def Dragonfight():
     terrain=terrainset()
-    if terrain=='hills' or 'windy planes' or 'mountains' or 'desert':
+    if terrain=='hills' or 'mountains':
         monster='dragon'
-    elif terrain== 'grasslands' or 'marshlands' or 'forest':
+    elif terrain=='windy planes' or 'desert' or 'grasslands':
+        monster='roc'
+    elif terrain=='marshlands' or 'forest':
         monster='hag'
     monsterarmor=getstat('monsters.txt',monster,'armor')
     monsterattack=getstat('monsters.txt',monster,'attack')
@@ -470,7 +472,34 @@ def endscreen(win):
         contents=rf.read()
     print(contents)
     if win==True:
-        print('you have won the game. type /exit to exit the game or /return to restart')
+        print('you have defeated the boss. you find some coins in the lair and make your way back to town')
+        valid=False
+        while valid==False:
+            print('do you want to purchase something from the shop?')
+            print('/yes or /no')
+            com=input()
+            if com=='/yes':
+                print('choose: "/sheild"(+1 armor), "/weapon"(+ attack), "/cloak"(+1 stealth)')
+                com=input('buy:')
+                if com=='/sheild':
+                    armor=getstat('characters.txt',playername,'armor')
+                    armor=armor+1
+                    changestat('characters.txt',playername,'armor',str(armor))
+                    valid=True
+                if com=='/weapon':
+                    attack=getstat('characters.txt',playername,'attack')
+                    attack=attack+1
+                    changestat('characters.txt',playername,'attack',str(attack))
+                    valid=True
+                if com=='/cloak':
+                    stealth=getstat('characters.txt',playername,'stealth')
+                    stealth=stealth+1
+                    changestat('characters.txt',playername,'stealth',str(stealth))
+                    valid=True
+            if com=='/no':
+                print('I have not built in a money system yet so you will lose you should probably get something')
+        print('would you like to go out and try and fight another boss or quit the game?')
+        print('/exit, or /return')
         wins=wins+1
     if win==False:
         losses=losses+1
@@ -525,7 +554,7 @@ def SameCharecterQuerie(wins,losses):
 #game instructions
 print('Welcome to Caleb`s great adventure game version 10! this is still in development if you experience issues let me know and tell me what choices you made.')
 print('to play: enter simple commands from the list and try to defeat as many bosses as possible.')
-print('currently there are two bosses: dragon and hag.')
+print('currently there are three bosses: dragon, roc, and hag.')
 print('*')
 print('inorder to get to the boss you must suvive three days of your journey through randomly generated terrains')
 print('every day consists of a skill check based off the terrain you are in, and an encounter with a monster')
@@ -562,6 +591,7 @@ while runprog==True:
         wfm.write('\n goblin, health, 1\n goblin, armor, 1\n goblin, attack, 1\n')
         wfm.write('\n eagle, health, 3\n eagle, armor, 10\n eagle, attack, 2\n')
         wfm.write('\n hag, health, 20\n hag, armor, 10\n hag, attack, 5\n')
+        wfm.write('\n roc, health, 20\n roc, armor, 10\n roc, attack, 6\n')
     SameCharecterQuerie(wins,losses)
     cont=journey()
     if cont==False:
